@@ -19,28 +19,61 @@ public class Md5Util {
 
 
     //获取文件的Md5
-    public static String getMd5ByFile(File file) throws FileNotFoundException {
-        String value = null;
-        FileInputStream in = new FileInputStream(file);
+//    public static String getMd5ByFile(File file) throws FileNotFoundException {
+//        String value = null;
+//        FileInputStream in = new FileInputStream(file);
+//        try {
+//            MappedByteBuffer byteBuffer = in.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
+//            MessageDigest md5 = MessageDigest.getInstance("MD5");
+//            md5.update(byteBuffer);
+//            BigInteger bi = new BigInteger(1, md5.digest());
+//            value = bi.toString(16);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (null != in) {
+//                try {
+//                    in.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//        return value;
+//    }
+
+    //获取文件的Md5
+    public static String getMd5ByFile(File file) {
+        MessageDigest digest = null;
+        FileInputStream fis = null;
+        byte[] buffer = new byte[1024];
+
         try {
-            MappedByteBuffer byteBuffer = in.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            md5.update(byteBuffer);
-            BigInteger bi = new BigInteger(1, md5.digest());
-            value = bi.toString(16);
+            if (!file.isFile()) {
+                return "";
+            }
+
+            digest = MessageDigest.getInstance("MD5");
+            fis = new FileInputStream(file);
+
+            while (true) {
+                int len;
+                if ((len = fis.read(buffer, 0, 1024)) == -1) {
+                    fis.close();
+                    break;
+                }
+
+                digest.update(buffer, 0, len);
+            }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (null != in) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            return null;
         }
-        return value;
+
+        BigInteger var5 = new BigInteger(1, digest.digest());
+        return String.format("%1$032x", new Object[]{var5});
     }
+
 
     //获取文字的MD5
     public static String getMd5ByText(String plainText) {
@@ -70,33 +103,5 @@ public class Md5Util {
         }
 
     }
-
-
-    public String getMd5ByApar(File file){
-        FileInputStream fis= null;
-        try {
-            fis = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-//        String md5 = DigestUtils.md5Hex(IOUtils.toByteArray(fis));
-//        IOUtils.closeQuietly(fis);
-//        System.out.println("MD5:"+md5);
-        return null;
-    }
-//    public static void main(String[] args) throws IOException {
-//
-//        String path = "E:\\commons-codec-1.9-bin.zip";
-//
-//        String v = getMd5ByFile(new File(path));
-//        System.out.println("MD5:" + v.toUpperCase());
-//
-//            FileInputStream fis= new FileInputStream(path);
-//            String md5 = DigestUtils.md5Hex(IOUtils.toByteArray(fis));
-//            IOUtils.closeQuietly(fis);
-//            System.out.println("MD5:"+md5);
-//
-//        System.out.println("MD5:"+DigestUtils.md5Hex("WANGQIUYUN"));
-//    }
 
 }
